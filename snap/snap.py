@@ -1,4 +1,5 @@
 import boto3
+import botocore
 import click
 
 session = boto3.Session(profile_name="snap")
@@ -108,6 +109,11 @@ def stop_instances(project):
     instances = filter_instances(project)
     for i in instances:
         print ('Stopping {0}.....'.format(i.id))
+        try:
+            i.stop()
+        except botocore.exceptions.ClientError as e:
+            print("Could not stop the instance {0}".format(i.id) + " and error is: " +str(e))
+            continue
     return
 
 @instances.command("start")
@@ -117,7 +123,11 @@ def stop_instances(project):
     instances = filter_instances(project)
     for i in instances:
         print ('Starting {0}.....'.format(i.id))
-        i.start()
+        try:
+            i.start()
+        except botocore.exceptions.ClientError as e:
+            print("Could not start the instance {0}".format(i.id) + " and error is: " +str(e))
+            continue
     return
 
 if __name__=='__main__':
