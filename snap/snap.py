@@ -89,10 +89,16 @@ def create_snapshot(project):
     "Create snapshots for EC2 instances"
     instances = filter_instances(project)
     for i in instances:
+        print("Stopping {0}.....".format(i.id))
         i.stop()
+        i.wait_until_stopped()
         for v in i.volumes.all():
-            print("Creating snapshot of {0}".format(v.id))
-            v.create_snapshot(Description="Created by DJ Snap" )
+            print(" Creating snapshot of {0}".format(v.id))
+            v.create_snapshot(Description="Created by DJ Snap")
+        print("Starting {0}.....".format(i.id))
+        i.start()
+        i.wait_until_running()
+    print ("Job is Done!")
     return
 
 @instances.command("stop")
@@ -102,7 +108,6 @@ def stop_instances(project):
     instances = filter_instances(project)
     for i in instances:
         print ('Stopping {0}.....'.format(i.id))
-        i.stop()
     return
 
 @instances.command("start")
